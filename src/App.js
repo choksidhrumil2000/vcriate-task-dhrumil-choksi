@@ -10,6 +10,8 @@ import {
   useEdgesState,
   useNodesState,
   useReactFlow,
+  reconnectEdge,
+  MarkerType,
 } from "@xyflow/react";
 import CustomNode from "./Components/CustomNode/CustomNode";
 import "@xyflow/react/dist/style.css"; // Main Flow styles
@@ -18,6 +20,8 @@ const nodeTypes = {
   customNode: CustomNode,
 };
 function App() {
+  const edgeReconnectSuccessful = useRef(true);
+
   const [productsData, setProductsData] = useState([]);
   const [filteredProductsData, setFilteredProductsData] = useState([]);
   const [isloading, setIsLoading] = useState(false);
@@ -44,9 +48,38 @@ function App() {
   }, []);
 
   const onConnect = useCallback(
-    (params) => setEdges((eds) => addEdge(params, eds)),
+    // (params) => setEdges((eds) => addEdge(params, eds)),
+    (params) =>
+      setEdges((eds) =>
+        addEdge(
+          {
+            ...params,
+            markerEnd: {
+              type: MarkerType.Arrow,
+            },
+          },
+          eds
+        )
+      ),
     []
   );
+
+  const onReconnectStart = useCallback(() => {
+    edgeReconnectSuccessful.current = false;
+  }, []);
+
+  const onReconnect = useCallback((oldEdge, newConnection) => {
+    edgeReconnectSuccessful.current = true;
+    setEdges((els) => reconnectEdge(oldEdge, newConnection, els));
+  }, []);
+
+  const onReconnectEnd = useCallback((_, edge) => {
+    if (!edgeReconnectSuccessful.current) {
+      setEdges((eds) => eds.filter((e) => e.id !== edge.id));
+    }
+
+    edgeReconnectSuccessful.current = true;
+  }, []);
 
   const onDragOver = useCallback((event) => {
     event.preventDefault();
@@ -125,6 +158,9 @@ function App() {
             onDrop={onDrop}
             onDragStart={onDragStart}
             onDragOver={onDragOver}
+            onReconnect={onReconnect}
+            onReconnectStart={onReconnectStart}
+            onReconnectEnd={onReconnectEnd}
             nodeTypes={nodeTypes}
             // fitView
             style={{ backgroundColor: "#F7F9FB" }}
