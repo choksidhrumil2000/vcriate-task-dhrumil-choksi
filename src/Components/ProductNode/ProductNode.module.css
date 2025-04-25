@@ -1,0 +1,23 @@
+.product_node_main_div{
+    justify-content: space-between;
+    align-items: center;
+    gap:16px;
+    padding: 8px;
+    margin: 8px 0px;
+    border:1px solid black;
+    cursor: pointer;
+    border-radius: 8px;
+}
+.product_node_main_div:hover{
+    border:1px solid red;
+    background-color: white;
+}
+.product_title, .product_price{
+font-size: 16px;
+font-weight: 550;
+}
+.product_title{
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
